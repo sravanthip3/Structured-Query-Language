@@ -1,0 +1,101 @@
+Excercise - 1(Select, Where)
+
+1. From the BAND table, retrieve only the rows which have “name” equal to 'Led Zeppelin'.  Select only columns “band_id”, “name” and “year”. 
+   
+   select * 
+   from album
+   where band_id in (select band_id 
+                   from Band
+                   where name = 'Led Zeppelin')
+Excercise - 2
+
+2. select * 
+   from band
+   where name= 'Icarus' and year is null;
+
+Excercise - 3 (Aggregate Functions - Groupby, Having, Count, Order by)
+
+3. select name, count(*)
+   from band
+   groupby name
+
+Excercise - 4 
+
+4. select name, count(*)
+   from band
+   groupby name
+   having count(*)>=2
+
+5. select name, count(*)
+   from band
+   groupby name
+   having count(*)>=2
+   order by count(*) desc
+
+Excercise - 5 (Inner Join)
+
+
+6. select *
+   from band as b inner join album as a
+   on a.band_id=b.band_id
+   where b.name='Led Zeppelin'
+
+Excercise - 6 (Left Outer Join)
+
+7. From the ALBUM table, select all albums of the Led Zeppelin band, by using a condition band_id=388.  Sort the result by the “year” column, ascending.
+
+   select album_id, name, band_id, year
+   from album
+   where band_id = 388 
+   order by year asc
+
+8. Group the rows by the “year” column, for every given year count the number of albums released in that year.  Sort the result by the “year” column.
+
+   select year, count(*)
+   from album
+   where band_id = 388
+   group by year
+   order by year
+
+9. Let’s make a continuous list of year.   To do this, write a query that selects rows from the CALENDAR_YEAR table, with a condition for “year” between 
+   1969 and 1982 (including those values). Order the result by the year column. 
+ 
+   select c.year
+   from calendar_year as c
+   where c.year>=1969 and c.year<=1982
+   order by c.year
+
+10. Now it’s time for the outer join.  Join the tables CALENDAR_YEAR and ALBUM, by matching “year” column.  Use either LEFT OUTER JOIN or RIGHT OUTER JOIN, 
+    so that the primary table it CALENDAR_YEAR.  From the CALENDAR_YEAR table, select years between 1969 and 1982. From the ALBUM table, select albums for 
+    the band with the band_id= 388. (Hint: make sure to write the condition band_id=388 in the ON clause, not in the WHERE clause. Use AND to combine this 
+    condition with a join condition.) Sort the result by the “year” column of the CALENDAR_YEAR table. The result should be like this - all years from 1969 
+    to 1982, even those years when the band 388 did not release any albums.  For example, 1972 is present in the query result, even though Led Zeppelin did 
+    not release any albums that year. 
+
+    select c.year, a.album_id, a.name, a.band_id, a.year
+    from calendar_year as c 
+    left outer join album as a
+    on a.year=c.year 
+    and a.band_id=388
+    where c.year>=1969 and c.year<=1982 and 
+    order by c.year
+
+11. For every year, count the number of albums released by Led Zeppelin in that year. For that, modify the previous query - group the results by the “year” 
+    column of the CALENDAR_YEAR table.  For each year, count the number of albums, released by Led Zeppelin in that year.  Sort the result by the “year” column 
+    of the CALENDAR_YEAR table. Hint: when using COUNT, use the albums’ numbers column “album_id" to count the albums, not the *.  This will help you get a 0 
+    value for the years when no albums were released.
+
+    
+    select c.year count(album_id)
+    from calendar_year as c
+    left outer join album as a
+    on a.year=c.year
+    and a.album_id=388
+    where c.year>=1969 and c.year<=1982 and 
+    group by year
+    order by year
+
+
+
+
+
