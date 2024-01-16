@@ -1,0 +1,187 @@
+Exercise - 7 (Self Join)
+
+1. From the MUSIC_INSTRUMENT table, select a row with id=1. Output only “id" and “name" columns. 
+
+      select m.id, m.name
+      from music_instrument as m
+      where m.id=1
+
+2. Modify the previous query - add an outer join to the same table MUSIC_INSTRUMENT.  This query should return the child instruments of the 
+   “wind instruments”. Use aliases to name the child’s “id" and “name” columns as “child_id” and “child_name”. 
+
+       select a.id, a.name, b.id as child_id, b.name as 
+       from music_instrument as a
+       left outer join music_instrument as b
+       on b.parent_id = a.id
+       where id=1
+
+3. For every row found on the previous step, find their child rows. Use an additional outer join to the same table, with a  different table alias.  
+   Give the new columns the names “grandchild_id”  and “grandchild_name”. Sort the query result, first by the column "name", then by “child_name", 
+   and then by “grandchild_name".  With this sorting, you’ll visually see which instruments belong “brass" category, which belong to “organ” and 
+   which belong to “woodwind”.
+
+       select a.id, a.name, b.id as child_id, b.name as, c.id as grandchild_id, c.name as grandchild_name
+       from music_instrument as a
+       left outer join music_instrument as b
+       on b.parent_id = a.id
+       left outer join music_instrument as c
+       on c.parent_id = c.id
+       where a.id=1
+       order by a.name, b.name, c.name
+
+Exercise - 8 (Set Operators - Union, Except, Intersect)
+
+3. Find all music bands that released an album named Now.  Select only "band_id" column. 
+
+       select band_id
+       from album
+       where name='Now'
+
+   Similarly,  Find all music bands that released an album named The Collection. 
+   
+       select band_id
+       from album
+       where name='The Collection'
+
+4. And now let’s find music bands, which are present in both lists - on step 1 and step 2. Find common “band_id" numbers from both lists. As a result, 
+   we will find those bands which released its own Now album, and its own The Collection album. You can check this by writing two separate queries, 
+   retrieving albums for each of those bands.
+ 
+        select band_id
+        from album
+        where name='Now'
+        intersect
+        select band_id
+        from album
+        where name='The Collection'
+
+5. On the previous step, we found only the “band_id" numbers. Let’s also find their names. For that, select rows from the BAND table, which contain the 
+   necessary band_id numbers. 
+   
+        select band_id, name
+        from band 
+        where band_id in
+        (
+        select band_id
+        from album
+        where name='Now'
+        intersect
+        select band_id
+        from album
+        where name='The Collection'
+        )
+
+Exercise - 9 (Functions and Operators )
+
+6. Find all music bands which contain the word "magic" (all lowercase) within its name, in any part of the name - in the beginning, in the middle or in the end. 
+   Sort the result by the name. 
+
+         select *
+         from band
+         where name like '%magic%'
+         order by name
+
+7. Find music bands which contain the word "magic" within its name, but this time the word “magic" can be written in any case - all lowercase, all uppercase,  
+   first capital letter and all other letters lowercase, and so on. For example, the bands “Automagic" and “Blue Magic” should both be present in the result. 
+   Order the result by the name.
+
+          select *
+          from band
+          where lower(name) like '%magic%'
+          order by name
+
+8. From the PERSON table, find only those musicians with a name which starts with a capital English letter. Count the number of those musicians, and compare 
+   it with a total number of musicians. 
+
+          select name, substring(name,1,1) as first_letter
+          from person
+          where substring(name,1,1) between 'A' and 'Z'
+
+          select count(*)
+          from(
+          select name, substring(name,1,1) as first_letter
+          from person
+          where substring(name,1,1) between 'A' and 'Z'
+          ) as table1
+
+          select count(*) 
+          from person;
+       
+
+9. For every English letter, count the number of musicians, whose name starts with that letter. Sort the result, so that the letters with most musicians are 
+   at the top of the result. 
+
+           select first_letter, count(*)
+           from(
+           select name, substring(name,1,1) as substring
+           from person
+           where substring(name,1 1) between 'A' and 'Z'
+           ) as table1
+           group by 1
+           order by 2 desc
+
+Exercise - 10 (Insert, Update, Delete)
+
+10. Let’s check that the number of albums in both tables - BAND_EXTENDED and ALBUM - is the same.   To do this: - find a sum of “n_albums” in the BAND_EXTENDED 
+    table, for all music bands - find the total number of albums in the ALBUM table.  These two numbers should be the same.
+
+            select sum(n_albums)
+            from band_extended
+
+            select count(*)
+            from album
+
+11. Make changes to the existing data (do an update) - in the BAND_EXTENDED table, find a row for Metallica, and change the value in the “n_albums" column - 
+    from 11 to NULL. Notice, that this change should be made only to one row. Check the result - write a separate SELECT query to retrieve that row for 
+    Metallica. Also, please check the total sum of “n_albums" for all bands.  After the update, this sum should be different from the value found on Step 2.  
+    And the difference should be 11.  If you observe that the difference is not equal to 11, that probably means that you made changes to many rows, not just 
+    one row
+
+             update band_extended
+             set n_albums = NULL 
+             where name = 'Metallica'
+
+             select name, n_albums 
+             from band_extended
+             where name = 'Metallica'
+
+             select sum(n_albums)
+             from band_extended
+             group by n_albums
+
+12. Add a new row to the BAND_EXTENDED table, with the following values: band_id: -100  (minus 100, we use a negative number for this exercise, so that
+    this number does not match with any existing values in that column) 
+            name: 'My Test Music Group'  
+            year: 2000 
+            comment: 'My Comment' 
+            n_albums: 25  
+            n_songs:   54 
+    Write a SELECT to verify that the row was successfully added to the table. Check the number of rows in the table.  Before the step, the number was 82928. 
+    Now it should be 82929.  
+
+              insert into band_extended (band_id, name, year, comment, n_albums, n_songs) 
+                       values(-100, 'My Test Music Group', 2000, 'My Comment', 25, 54)
+
+              select count(*)
+              from band_extended
+
+13. And finally, delete a row from BAND_EXTENDED table for music band Queen. After the row is deleted, write a separate SELECT to verify that the row was 
+    deleted. The SELECT should return 0 rows. Check the number of rows in the table.  Before the step, the number was 82929. Now it should be 82928. 
+
+
+              delete
+              from band_extended 
+              where name = 'Queen'
+
+              select *
+              from band_extended
+
+
+   
+
+
+
+
+
+
+   
