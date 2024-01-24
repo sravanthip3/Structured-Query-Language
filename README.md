@@ -1,2 +1,2 @@
 # firstrepository
-This is example repository.
+This is a repository for SQL queries.
